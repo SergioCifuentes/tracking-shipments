@@ -1,7 +1,11 @@
+backend/node_modules
 node_modules
+backend/build
 build
+backend/npm-debug.log
+backend/dist
+dist
 npm-debug.log
 .nyc
 .env
 .DS_Store
-backend/node_modules
