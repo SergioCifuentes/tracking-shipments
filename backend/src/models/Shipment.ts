@@ -5,8 +5,8 @@ import { Status } from './Status';
 @Entity()
 export class Shipment extends BaseEntity {
 
-    @PrimaryGeneratedColumn('uuid')
-    ID: string;
+    @PrimaryGeneratedColumn()
+    ID: number;
 
     @Column({type: 'varchar', length: 100})
     DESCRIPTION: string;
