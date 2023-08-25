@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { Shipment } from "../models/Shipment";
+import { ShipmentHistory } from "../models/ShipmentHistory";
 
 const router = express.Router();
 
@@ -11,15 +12,12 @@ router.get("/", async (req: Request, res: Response) => {
 
 router.post("/", async (req: Request, res: Response) => {
     try {
-        const shipmentData = req.body;
-        const shipment = new Shipment();
-        shipment.DESCRIPTION = shipmentData.description;
-        shipment.DESTINATION = shipmentData.destination;
-        shipment.SOURCE = shipmentData.source;
-        shipment.STATUS = shipmentData.status;
-
-        await Shipment.insert(shipment);
-
+        const shipment = await Shipment.save(req.body);
+        const update= new ShipmentHistory();
+        update.shipment=shipment;
+        update.status=shipment.status;
+        update.date_time=new Date();
+        ShipmentHistory.insert(update);
         res.json({
             message: "Values have been inserted successfuly."
         });
@@ -28,7 +26,7 @@ router.post("/", async (req: Request, res: Response) => {
     }
 })
 router.get("/:id", async (req: Request, res: Response) => {
-    const shipment = await Shipment.findOneBy({ID: +req.params.id})
+    const shipment = await Shipment.findOneBy({id: +req.params.id})
     if (shipment) {
         res.json(shipment)
     } 
@@ -38,31 +36,8 @@ router.get("/:id", async (req: Request, res: Response) => {
         })
     }
 })
-
-router.put("/:id", async (req: Request, res: Response) => {
-    const shipment = await Shipment.findOneBy({ID: +req.params.id});
-
-    if (shipment) {
-        const shipmentData = req.body;
-        if(shipmentData.description) shipment.DESCRIPTION = shipmentData.description;
-        if(shipmentData.destination) shipment.DESTINATION = shipmentData.destination;
-        if(shipmentData.source) shipment.SOURCE = shipmentData.source;
-        if(shipmentData.status) shipment.STATUS = shipmentData.status;
-        Shipment.save(shipment);
-       
-        res.json({
-            message: "Values updated successfully."
-        })
-    } 
-    else {
-        res.json({
-            message: "Shipment not found."
-        })
-    }
-})
-
 router.delete("/:id", async (req: Request, res: Response) => {
-    const shipment = await Shipment.findOneBy({ID: +req.params.id})
+    const shipment = await Shipment.findOneBy({id: +req.params.id})
 
     if (shipment) {
         Shipment.delete(req.params.id);
@@ -76,5 +51,38 @@ router.delete("/:id", async (req: Request, res: Response) => {
         })
     }
 })
+
+router.put("/:id", async (req: Request, res: Response) => {
+    const shipment = await Shipment.findOneBy({id: +req.params.id});
+
+    if (shipment) {
+        const shipmentData = req.body;
+        if(shipmentData.description) shipment.description = shipmentData.description;
+        if(shipmentData.destination) shipment.destination = shipmentData.destination;
+        if(shipmentData.source) shipment.source = shipmentData.source;
+        if(shipmentData.status){
+            shipment.status = shipmentData.status;
+        } 
+        Shipment.save(shipment);
+        if(shipmentData.status){
+            const update= new ShipmentHistory();
+            update.shipment=shipment;
+            update.status=shipmentData.status;
+            update.date_time=new Date();
+            ShipmentHistory.insert(update);
+        } 
+       
+        res.json({
+            message: "Values updated successfully."
+        })
+    } 
+    else {
+        res.json({
+            message: "Shipment not found."
+        })
+    }
+})
+
+
 
 export default router;

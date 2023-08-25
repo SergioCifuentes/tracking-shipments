@@ -4,6 +4,7 @@ import { createConnection } from "typeorm";
 import dotenv from "dotenv";
 import { Pool } from "pg";
 import { Shipment } from "../models/Shipment"
+import { ShipmentHistory } from "../models/ShipmentHistory"
 dotenv.config()
 
 const connectDB = async () => {
@@ -12,7 +13,7 @@ const connectDB = async () => {
         url: process.env.DATABASE_URL,
         logging: true,
         synchronize: true,
-        entities: [Shipment],
+        entities: [Shipment,ShipmentHistory],
         migrations: ["./src/models/*.ts"],
         ssl: false,
         extra: {
